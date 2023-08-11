@@ -1,18 +1,30 @@
-# Intended to be run from the model/ directory
-# docker build -t predict-etl:latest -f ./Dockerfile .
-# docker run [-idt] --name predictETL --rm predict-etl
+# Intended to be run from the top-level package directory
+# This package is meant to be an all purpose container of this project.
+# You should be able to develop, test, debug, and use it as a base layer for other layers.
+# 
+# docker build -t predict-etl-base:latest -f ./model/Dockerfile .
+# docker run [-idt] --name predict-etl-base --rm predict-etl-base:latest
 # test locally with:
-#    docker run -it --name predictETL \
+#    docker run -it --name predict-etl-base \
 #      -e AWS_ACCESS_KEY_ID=[access key] \
 #      -e AWS_SECRET_ACCESS_KEY=[secret key] \
-#      --rm predict-etl
+#      --rm predict-etl-base:latest
 
-FROM predict-etl-packages:latest
+FROM --platform=linux/amd64 bitnami/spark:3.3.0-debian-11-r44 AS pyspark-build
 
-COPY . .
+USER root
 
-# allows us to call executables directly on the path
-ENV PATH=$PATH:/tmp/
+RUN apt-get -y update
+RUN apt-get -y install git
+RUN apt-get -y install vim
 
-# execute python script
-CMD PredictETL.py
+COPY . ./app
+
+# install the package requirements
+# the -e in case you want use container to develop locally (necessary on Apple silicon Macs)
+RUN cd ./app && pip install -e .
+
+# safer to switch back to nobody, but you need root if you want to develop from VS Code
+# USER nobody
+
+CMD ["bash"]

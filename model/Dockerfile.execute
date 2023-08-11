@@ -1,0 +1,15 @@
+# Intended to be run from the top-level package directory
+# This file is meant for running the predict ETL pipeline.
+#
+# docker build -t predict-etl-execute:latest -f ./model/Dockerfile.execute .
+# docker run [-idt] --name predict-etl-execute --rm predict-etl-execute:latest
+# test locally with:
+#    docker run -it --name predict-etl-execute \
+#      -e AWS_ACCESS_KEY_ID=[access key] \
+#      -e AWS_SECRET_ACCESS_KEY=[secret key] \
+#      --rm predict-etl-execute:latest
+
+FROM --platform=linux/amd64 predict-etl-base:latest
+
+# execute predict python script
+CMD ./app/model/PredictETL.py

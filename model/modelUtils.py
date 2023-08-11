@@ -1,5 +1,4 @@
 import os
-from configparser import ConfigParser
 from datetime import datetime, timedelta
 from pyspark.sql import DataFrame
 from schema import fromDynamoConversion, toSparkSchema

@@ -12,7 +12,7 @@ import sys
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(THIS_DIR, '../lambdaFunctions/getRedditDataFunction/'))
 sys.path.append(os.path.join(THIS_DIR, '../'))
-import configUtils as cu
+import viral_reddit_posts_utils.configUtils as cu
 import tableDefinition
 import pandas as pd
 import json

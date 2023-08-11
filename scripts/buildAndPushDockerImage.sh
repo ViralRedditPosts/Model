@@ -11,28 +11,22 @@ done
 : ${account_number:?Missing -a}   # checks if these have been set https://unix.stackexchange.com/questions/621004/bash-getopts-mandatory-arguments
 echo "account_number: $account_number";
 
-cd ../model
+cd ..
 
 # make the predict script executable
-chmod +x PredictETL.py
+chmod +x model/PredictETL.py
 # make it so we can write the latest model from S3 to the pickledModels directory
 chmod -R +w pickledModels/
 
-# build the environment image
-echo "Building predict-etl-packages image"
-docker build -t predict-etl-packages:latest -f ./Dockerfile.packages .
+# build the base image
+echo "Building predict-etl-base image"
+docker build -t predict-etl-base:latest -f ./model/Dockerfile .
 
-# copy configUtils, wasn't needed for the environment image
-cp ../configUtils.py .
-
-# build the predict-etl image
-echo "Building predict-etl image"
-docker build -t predict-etl:latest -f ./Dockerfile .
+# build the predict-etl-execute image
+echo "Building predict-etl-execute image"
+docker build -t predict-etl-execute:latest -f ./model/Dockerfile.execute .
 
 # Push to ECR
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${account_number}.dkr.ecr.us-east-2.amazonaws.com
 docker tag predict-etl:latest ${account_number}.dkr.ecr.us-east-2.amazonaws.com/predict-etl:latest
 docker push ${account_number}.dkr.ecr.us-east-2.amazonaws.com/predict-etl:latest
-
-# remove configUtils
-rm ./configUtils.py
