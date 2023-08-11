@@ -11,7 +11,7 @@ import sqlUtils as su
 import sys
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(THIS_DIR, '../'))
-import configUtils as cu
+import viral_reddit_posts_utils.configUtils as cu
 
 
 os.environ['TZ'] = 'UTC'
