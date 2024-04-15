@@ -1,3 +1,5 @@
+![Python](https://img.shields.io/badge/python-3.8.15-blue.svg) 
+
 # Viral Reddit Posts Model
 
 The purpose of this repo is to:
@@ -14,10 +16,30 @@ The purpose of this repo is to:
     1. Install Terraform CLI
     2. Install AWS CLI and run `aws configure` and enter in your aws credentials.
 3. Clone this repository 
-4. From within this repository run the following:
+4. You can run the tests locally yourself by doing the following (it is recommended that you manage your python environments with something like [asdf](https://asdf-vm.com/) and use python==3.12.3 as your local runtime):
+    
+    ```sh
+    python -m venv venv  # this sets up a local virtual env using the current python runtime
+    source ./venv//bin/activate  # activates the virtual env
+    pip install -e ."[dev]"  # installs this packages in local env with dependencies
+    pytest . -r f -s   # -r f shows extra info for failures, -s disables capturing
+    ```
+
+5. From within this repository run the following:
   
     ```sh
     terraform init
-    terraform apply
+    terraform workspace new dev  # this should switch you to the dev workspace
+    terraform plan -var-file="dev.tfvars" -out=dev-plan.out
+    terraform apply -var-file="dev.tfvars" dev-plan.out
     ```
-    If you don't want to apply the changes to your aws account you can instead run `terraform plan`.
+   
+    For deploying to prd
+
+    ```sh
+    terraform workspace new prd  # or terraform workspace select prd if already created
+    terraform plan -var-file="prd.tfvars" -out=prd-plan.out
+    terraform apply -var-file="prd.tfvars" prd-plan.out
+    ```
+   
+   On subsequent updates you don't need to `init` or make a new workspace again.
