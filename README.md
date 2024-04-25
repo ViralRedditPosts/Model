@@ -16,7 +16,7 @@ The purpose of this repo is to:
     1. Install Terraform CLI
     2. Install AWS CLI and run `aws configure` and enter in your aws credentials.
 3. Clone this repository 
-4. You can run the tests locally yourself by doing the following (it is recommended that you manage your python environments with something like [asdf](https://asdf-vm.com/) and use python==3.12.3 as your local runtime):
+4. You can run the tests locally yourself by doing the following (it is recommended that you manage your python environments with something like [asdf](https://asdf-vm.com/) and use python==3.8.15 as your local runtime):
     
     ```sh
     python -m venv venv  # this sets up a local virtual env using the current python runtime
