@@ -15,10 +15,12 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4.6.0
       with:
-        python-version: '3.8.15'
+        python-version: '3.12.3'
     
     - name: Install requirements
-      run: pip install ."[test]"
+      run: |
+      pip install --upgrade pip
+      pip install ."[test]"
       
     - name: Run tests and collect coverage
       run: pytest --cov .
