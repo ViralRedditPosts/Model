@@ -1,4 +1,4 @@
-![Python](https://img.shields.io/badge/python-3.8.15-blue.svg) 
+![Python](https://img.shields.io/badge/python-3.12.3-blue.svg) 
 
 # Viral Reddit Posts Model
 
@@ -15,8 +15,9 @@ The purpose of this repo is to:
 2. Installs - see the [prerequisites section on this page](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-build#prerequisites) for additional information, the steps are essentially:
     1. Install Terraform CLI
     2. Install AWS CLI and run `aws configure` and enter in your aws credentials.
+    3. JDK 17 installed (8, 11 or 17 are compatible with spark 3.4.0)
 3. Clone this repository 
-4. You can run the tests locally yourself by doing the following (it is recommended that you manage your python environments with something like [asdf](https://asdf-vm.com/) and use python==3.8.15 as your local runtime):
+4. You can run the tests locally yourself by doing the following (it is recommended that you manage your python environments with something like [asdf](https://asdf-vm.com/) and use python==3.12.3 as your local runtime):
     
     ```sh
     python -m venv venv  # this sets up a local virtual env using the current python runtime

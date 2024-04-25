@@ -6,12 +6,13 @@ import os
 from datetime import datetime, timedelta
 from boto3.dynamodb.conditions import  Key, Attr
 from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
 import pandas as pd
 import sqlUtils as su
 import sys
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(THIS_DIR, '../'))
-import viral_reddit_posts_utils.configUtils as cu
+import viral_reddit_posts_utils.config_utils as cu
 
 
 os.environ['TZ'] = 'UTC'
@@ -60,6 +61,15 @@ class Pipeline:
     print("Number of posts found:", len(postsOfInterest))
 
     self.postIdData = modelUtils.getPostIdSparkDataFrame(self.spark, risingTable, postsOfInterest, chunkSize=100)
+
+    # type issue https://stackoverflow.com/questions/76072664/convert-pyspark-dataframe-to-pandas-dataframe-fails-on-timestamp-column
+    self.postIdData = (
+      self.postIdData
+      .withColumn("loadDateUTC", F.date_format("loadDateUTC", "yyyy-MM-dd"))
+      .withColumn("loadTimeUTC", F.date_format("loadTimeUTC", "HH:mm:ss"))
+      .withColumn("loadTSUTC", F.date_format("loadTSUTC", "yyyy-MM-dd HH:mm:ss"))
+      .withColumn("createdTSUTC", F.date_format("createdTSUTC", "yyyy-MM-dd HH:mm:ss"))
+    )
 
     pandasTestDf = self.postIdData.limit(5).toPandas()
     print(pandasTestDf.to_string())
@@ -116,7 +126,7 @@ class Pipeline:
     engine = self.engine
     data = data.set_index(['postId'])
     with engine.connect() as conn:
-      result = su.upsert_df(df=data, table_name=tableName, engine=conn)
+      result = su.upsert_df(df=data, table_name=tableName, engine=conn.connection)
     print("Finished writing to postgres")
     return
 
@@ -147,7 +157,7 @@ class Pipeline:
     postIds = list(data['postId'])
     sql = f"""select "postId", "stepUp", 1 as "matchFound" from public."scoredData" where "postId" in ('{"','".join(postIds)}') and "stepUp" = 1"""
     with engine.connect() as conn:
-      result = pd.read_sql(sql=sql, con=conn)
+      result = pd.read_sql(sql=sql, con=conn.connection)
     # join data together
     joinedData = pd.merge(data, result, on=['postId', 'stepUp'], how='left')
     # filter out where match found
@@ -199,9 +209,9 @@ if __name__ == "__main__":
   threshold = 0.29412  # eventually will probably put this in its own config file, maybe it differs per subreddit
   # modelName = 'models/Reddit_model_20230503-235329_GBM.sav'
 
-  # cfg_file = cu.findConfig()
+  # cfg_file = cu.find_config()
   cfg_file = 's3://data-kennethmyers/reddit.cfg'
-  cfg = cu.parseConfig(cfg_file)
+  cfg = cu.parse_config(cfg_file)
 
   spark = (
     SparkSession

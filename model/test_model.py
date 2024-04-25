@@ -5,15 +5,12 @@ import sqlUtils as su
 import os
 from datetime import datetime, timedelta
 from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
 import schema
 import boto3
 from moto import mock_dynamodb
-import sys
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(THIS_DIR, '../lambdaFunctions/getRedditDataFunction/'))
-sys.path.append(os.path.join(THIS_DIR, '../'))
-import viral_reddit_posts_utils.configUtils as cu
-import tableDefinition
+import viral_reddit_posts_utils.config_utils as cu
+from lambda_functions.get_reddit_data_function import table_definition
 import pandas as pd
 import json
 from decimal import Decimal
@@ -22,10 +19,10 @@ from unittest import mock
 
 IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 os.environ['TZ'] = 'UTC'
-
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture(scope='module')
-def sampleRisingData():
+def sample_rising_data():
   d = pd.read_csv(os.path.join(THIS_DIR, 'test_data.csv'))
   # we need to change some of the values here so that they can be found by the extract method
   # particularly the load dates have to be within the last hour
@@ -49,7 +46,7 @@ def sampleRisingData():
 #   dynamodb = boto3.resource('dynamodb')
 #   # create table and write to sample data
 #   tableName = 'rising'
-#   td = tableDefinition.getTableDefinition(tableName=tableName)
+#   td = table_definition.gettable_definition(tableName=tableName)
 #   table = dynamodb.create_table(**td)
 #   with table.batch_writer() as batch:
 #     for item in json.loads(sampleRisingData, parse_float=Decimal):  # for each row obtained
@@ -102,8 +99,8 @@ def modelName():
 
 @pytest.fixture(scope='module')
 def cfg():
-  cfg_file = cu.findConfig()
-  cfg = cu.parseConfig(cfg_file)
+  cfg_file = cu.find_config()
+  cfg = cu.parse_config(cfg_file)
   return cfg
 
 
@@ -119,14 +116,14 @@ def engine(cfg):
 
 # as I mentioned earlier, I'd like to change this so the dynamodb resource is a fixture but it kept throwing errors
 @mock_dynamodb
-def test_extract(sampleRisingData, cfg, engine, model, modelName, spark, threshold):
+def test_extract(sample_rising_data, cfg, engine, model, modelName, spark, threshold):
   dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
   # create table and write to sample data
   tableName = 'rising'
-  td = tableDefinition.getTableDefinition(tableName=tableName)
+  td = table_definition.get_table_definition(tableName=tableName)
   table = dynamodb.create_table(**td)
   with table.batch_writer() as batch:
-    for item in json.loads(sampleRisingData, parse_float=Decimal):  # for each row obtained
+    for item in json.loads(sample_rising_data, parse_float=Decimal):  # for each row obtained
       batch.put_item(
         Item=item  # json.loads(item, parse_float=Decimal) # helps with parsing float to Decimal
       )
@@ -208,7 +205,9 @@ def aggDataDf(spark):
       'maxScoreGrowth21_40m41_60m': 1.1,
       'maxNumCommentsGrowth21_40m41_60m': 0.5,
     }]
-  return spark.createDataFrame(testAggData, schema.aggDataSparkSchema).toPandas()
+  df = spark.createDataFrame(testAggData, schema.aggDataSparkSchema)
+  df = df.withColumn("createdTSUTC", F.date_format("createdTSUTC", "yyyy-MM-dd HH:mm:ss"))
+  return df.toPandas()
 
 
 def test_createPredictions(aggDataDf, pipeline):
