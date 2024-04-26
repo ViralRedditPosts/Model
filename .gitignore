@@ -271,4 +271,4 @@ scripts/zippedLambdaFunction/*
 *reddit*.cfg
 !example_reddit.cfg
 
-model/pickledModels/latestModel.sav
+model/pickledModels/sklearn-1.0.2/latestModel.sav

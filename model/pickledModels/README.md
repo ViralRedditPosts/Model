@@ -1,0 +1,3 @@
+When I first started this project in April 2023, I used sklearn 1.0.2 which I think was because I was on python 3.7 (already a bit old) and locked into some older packages (older versions of pyspark, numpy, pandas, etc). 
+
+Upon returning to this project in April 2024 I had a newer Mac and upgraded to python 3.12.3 and I was able to upgrade all of the above packages. However, because of this the pickled models could no longer be loaded. Therefore, the sklearn 1.0.2 have been moved to a separate folder for archival purposes. And newly trained models using sklearn 1.4.2 will be stored in the current directory.
