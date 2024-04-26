@@ -34,17 +34,18 @@ def test_getTarget():
 @mock_s3
 def test_getLatestModel():
   s3 = boto3.client('s3', region_name='us-east-2')
-  file1 = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20230503-235329_GBM.sav')
-  file1Name = 'models/Reddit_model_20230503-235329_GBM.sav'
-  file2 = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20230414-061009_LR.sav')
-  file2Name = 'models/Reddit_model_20230414-061009_LR.sav'
+  file1 = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20240426-075204_GBM.sav')
+  file1Name = 'models/Reddit_model_20240426-075204_GBM.sav'
+  # did not regenerate LR model after upgrading to py 3.12.3
+  # file2 = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20230414-061009_LR.sav')
+  # file2Name = 'models/Reddit_model_20230414-061009_LR.sav'
   bucketName = "test-bucket"
   # take this file and put it in the mock bucket
   s3.create_bucket(Bucket=bucketName, CreateBucketConfiguration={'LocationConstraint': 'us-east-2'})
   with open(file1, "rb") as f:
     s3.upload_fileobj(f, bucketName, file1Name)
-  with open(file2, "rb") as f:
-    s3.upload_fileobj(f, bucketName, file2Name)
+  # with open(file2, "rb") as f:
+  #   s3.upload_fileobj(f, bucketName, file2Name)
   from modelUtils import getLatestModel, getModel
   _, latestModelLoc = getLatestModel(bucketName=bucketName)
   assert latestModelLoc == file1Name  # latest model

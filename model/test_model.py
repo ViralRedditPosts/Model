@@ -83,7 +83,7 @@ def spark():
 
 @pytest.fixture(scope='module')
 def model():
-  testFile = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20230414-061009_LR.sav')
+  testFile = os.path.join(THIS_DIR, 'pickledModels/Reddit_model_20240426-075204_GBM.sav')
   return mu.loadModel(modelSaveLoc=testFile)
 
 
