@@ -8,7 +8,7 @@ import viral_reddit_posts_utils.config_utils as cu
 import responses
 
 
-PATH_OF_THIS_FILE = os.path.dirname(os.path.abspath(__file__))
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture(scope='module')
@@ -17,7 +17,7 @@ def cfg():
         cfg_file = cu.find_config()
     except FileNotFoundError as e:
         print(e)
-        cfg_file = os.path.join(PATH_OF_THIS_FILE, "../example_reddit.cfg")
+        cfg_file = os.path.join(THIS_DIR, "../example_reddit.cfg")
     cfg = cu.parse_config(cfg_file)
     return cfg
 

@@ -99,13 +99,13 @@ def modelName():
 
 @pytest.fixture(scope='module')
 def cfg():
-  try:
-    cfg_file = cu.find_config()
-  except FileNotFoundError as e:
-    print(e)
-    cfg_file = os.path.join(PATH_OF_THIS_FILE, "../example_reddit.cfg")
-  cfg = cu.parse_config(cfg_file)
-  return cfg
+    try:
+        cfg_file = cu.find_config()
+    except FileNotFoundError as e:
+        print(e)
+        cfg_file = os.path.join(THIS_DIR, "../example_reddit.cfg")
+    cfg = cu.parse_config(cfg_file)
+    return cfg
 
 
 # need to find a way to mock this, couldn't find anything that does that
