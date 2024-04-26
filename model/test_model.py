@@ -99,7 +99,11 @@ def modelName():
 
 @pytest.fixture(scope='module')
 def cfg():
-  cfg_file = cu.find_config()
+  try:
+    cfg_file = cu.find_config()
+  except FileNotFoundError as e:
+    print(e)
+    cfg_file = os.path.join(PATH_OF_THIS_FILE, "../../example_reddit.cfg")
   cfg = cu.parse_config(cfg_file)
   return cfg
 
